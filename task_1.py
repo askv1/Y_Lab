@@ -30,7 +30,7 @@ def zeros(n):
         return 0
 
     qt = 0
-    while n > 5:
+    while n >= 5:
         n //= 5
         qt += n
 
@@ -64,7 +64,7 @@ def count_find_num(primesL, limit):
         return []
 
     n = 1
-    max_prod = 0
+    max_prod = factors[0][0]
 
     while True:
 
