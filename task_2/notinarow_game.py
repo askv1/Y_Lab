@@ -39,16 +39,14 @@ class Game:
 
     def draw_x(self, x, y):
 
-        self.pen.width(3)
-        self.draw_line(x-self.fig_rad, y-self.fig_rad,
-                       x+self.fig_rad, y+self.fig_rad)
-        self.draw_line(x-self.fig_rad, y+self.fig_rad,
-                       x+self.fig_rad, y-self.fig_rad)
-        self.pen.width(1)
+        self.draw_line(
+            x-self.fig_rad, y-self.fig_rad, x+self.fig_rad, y+self.fig_rad)
+
+        self.draw_line(
+            x-self.fig_rad, y+self.fig_rad, x+self.fig_rad, y-self.fig_rad)
 
     def draw_o(self, x, y):
 
-        self.pen.width(3)
         self.pen.penup()
         self.pen.goto(x, y-self.fig_rad//2-4)
         self.pen.pendown()
@@ -77,9 +75,9 @@ class Game:
             self.draw_line((i-5)*self.cellsize, -self.board_ypos,
                            (i-5)*self.cellsize, self.board_ypos)
 
-        self.pen.forward(1)
-
         screen.onclick(lambda x, y: self.mouse_down(x, y))
+
+        self.pen.width(3)
 
         if self.next_turn != self.player_fig:
             self.ai_turn()
@@ -134,7 +132,7 @@ class Game:
                     if self.next_turn == self.player_fig:
                         self.weights[dx][dy] -= 1 / i
                     else:
-                        self.weights[dx][dy] -= (30 // i)
+                        self.weights[dx][dy] -= (30 / i)
 
     def ai_turn(self):
 
@@ -160,15 +158,21 @@ class Game:
         y = self.board_ypos + (celly + 0.5) * self.cellsize
 
         if self.next_turn != self.player_fig:
+
             self.pen.color('black')
+
             if self.n_turn > 2:
+
                 if self.next_turn == 'x':
                     self.draw_x(self.x_prev, self.y_prev)
                 else:
                     self.draw_o(self.x_prev, self.y_prev)
+
                 self.pen.color('purple')
+
             self.x_prev = x
             self.y_prev = y
+
         else:
             self.pen.color('black')
 
@@ -181,11 +185,14 @@ class Game:
         self.n_turn += 1
 
         if self.check_loss(cellx, celly):
+
             self.game_over = True
+
             if self.next_turn == self.player_fig:
                 self.msg.write('AI has won!', align='center', font=FONT)
             else:
                 self.msg.write('Player has won!', align='center', font=FONT)
+
         elif self.n_turn == 100:
             self.msg.write('Draw!', align='center', font=FONT)
 
