@@ -57,7 +57,6 @@ def find_route(points, n_init=20):
         dist_list.append(path_dist)
         path_list.append(route)
 
-
     sum_list = [sum(x) for x in dist_list]
     ind = sum_list.index(min(sum_list))
     dist = [[]] + [[x] for x in accumulate(dist_list[ind])]
@@ -65,12 +64,13 @@ def find_route(points, n_init=20):
 
     res = [(x[0], x[1]) for x in zip(route, dist)]
 
-    txt = reduce(lambda a, b: ''.join(str(x) for x in a) + '->' + ''.join(
+    txt = reduce(lambda a, b: ''.join(str(x) for x in a) + ' -> ' + ''.join(
                     str(x) for x in b), res)
 
-    return txt.replace('[]', '') + ' = ' + str(sum_list[ind])
+    return txt.replace('[]', '') + ' = ' + str(sum_list[ind]), route
 
 
 points = [(0, 2), (2, 5), (5, 2), (6, 6), (8, 3)]
 
-print(find_route(points))
+txt, route = find_route(points)
+print(txt)
