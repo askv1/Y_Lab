@@ -1,14 +1,35 @@
 import random
-from turtle import Turtle, Screen
+import tkinter as tk
+from tkinter import font
+from turtle import Turtle, Screen, title
 from itertools import product
 
 
 FONT = ('Consolas', 16)
+ENDGAME_MSG = ('AI has won!', 'Player has won!', 'Draw!')
 
 
 class Game:
 
     def __init__(self):
+
+        canvas = screen.getcanvas()
+
+        self.btn_new = tk.Button(canvas.master, text="New Game", bg='darkcyan',
+                                 fg='white', command=self.reset)
+
+        self.btn_new['font'] = font.Font(size=14)
+        canvas.create_window(0, -350, window=self.btn_new)
+
+        screen.bgcolor("yellow")
+
+    def reset(self):
+
+        if hasattr(self, 'pen'):
+            self.pen.clear()
+            self.msg.clear()
+
+        self.game_over = True
 
         self.board_xpos = -250
         self.board_ypos = -250
@@ -26,6 +47,13 @@ class Game:
 
         self.next_turn = 'x'
         self.player_fig = random.choice('xo')
+
+        self.draw_board()
+
+        self.game_over = False
+
+        if self.next_turn != self.player_fig:
+            self.ai_turn()
 
     def cdist(self, x, y):
         return ((x-4.5)**2 + (y-4.5)**2) ** 0.5
@@ -57,8 +85,6 @@ class Game:
         screen.bgcolor("yellow")
         screen.bgcolor()
 
-        self.game_over = False
-
         self.msg = Turtle(visible=False)
         self.msg.speed(100)
         self.msg.penup()
@@ -78,9 +104,6 @@ class Game:
         screen.onclick(lambda x, y: self.mouse_down(x, y))
 
         self.pen.width(3)
-
-        if self.next_turn != self.player_fig:
-            self.ai_turn()
 
     def check_line(self, x, dx, y, dy):
 
@@ -115,7 +138,18 @@ class Game:
         diag_shift = min(cellx, celly)
         d2_loss = self.check_line(cellx-diag_shift, 1, celly-diag_shift, 1)
 
-        return h_loss or v_loss or d1_loss or d2_loss
+        if self.n_turn == 100:
+            msg_ind = 2
+
+        elif any((h_loss, v_loss, d1_loss, d2_loss)):
+            msg_ind = int(self.next_turn != self.player_fig)
+
+        else:
+            msg_ind = -1
+
+        if msg_ind >= 0:
+            self.game_over = True
+            self.msg.write(ENDGAME_MSG[msg_ind], align='center', font=FONT)
 
     def change_weights(self, cellx, celly):
 
@@ -184,17 +218,7 @@ class Game:
         self.board[cellx][celly] = self.next_turn
         self.n_turn += 1
 
-        if self.check_loss(cellx, celly):
-
-            self.game_over = True
-
-            if self.next_turn == self.player_fig:
-                self.msg.write('AI has won!', align='center', font=FONT)
-            else:
-                self.msg.write('Player has won!', align='center', font=FONT)
-
-        elif self.n_turn == 100:
-            self.msg.write('Draw!', align='center', font=FONT)
+        self.check_loss(cellx, celly)
 
         self.weights[cellx][celly] = -1e10
         self.change_weights(cellx, celly)
@@ -224,6 +248,6 @@ class Game:
 
 
 screen = Screen()
+title("Not in a row")
 game = Game()
-game.draw_board()
 screen.mainloop()
